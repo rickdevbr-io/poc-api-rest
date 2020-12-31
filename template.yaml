@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+    person-poc
+
+    Rest API to manage a Data Lake of person links
+
+Globals:
+    Function:
+        Timeout: 20
+        MemorySize: 512
+        Environment:
+          Variables:
+            TABLE_NAME: !Ref PersonTable
+            ENDPOINT_OVERRIDE: ""
+
+Resources:
+
+  CreateStudyRecordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+     CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+     Handler: br.edu.fiap.serverlessarchitecture.handler.CreatePersonRecord::handleRequest
+     Runtime: java8
+     Policies:
+       - DynamoDBCrudPolicy:
+           TableName: !Ref PersonTable     
+     Events:
+       CreateStudyRecord:
+         Type: Api
+         Properties:
+           Path: /person
+           Method: post
+           
+  GetStudyRecordsByPeriodFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+     CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+     Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByPeriod::handleRequest
+     Runtime: java8
+     Policies:
+       - DynamoDBCrudPolicy:
+           TableName: !Ref PersonTable     
+     Events:
+       GetStudyRecordsByPeriod:
+         Type: Api
+         Properties:
+           Path: /person/{name}/findByPeriod
+           Method: get
+           RequestParameters:
+              - method.request.querystring.starts
+              - method.request.querystring.ends
+              
+  GetStudyRecordsByTagFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+     CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+     Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameCpf::handleRequest
+     Runtime: java8
+     Policies:
+       - DynamoDBCrudPolicy:
+           TableName: !Ref PersonTable     
+     Events:
+       GetStudyRecordsByTag:
+         Type: Api
+         Properties:
+           Path: /person/{name}/findByNameCpf
+           Method: get
+           RequestParameters:
+              - method.request.querystring.cpf
+
+  GetStudyRecordsByIsConsumedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+     CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+     Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameGener::handleRequest
+     Runtime: java8
+     Policies:
+       - DynamoDBCrudPolicy:
+           TableName: !Ref PersonTable
+     Events:
+       GetStudyRecordsByIsConsumed:
+         Type: Api
+         Properties:
+           Path: /person/{name}/findByNameGener
+           Method: get
+           RequestParameters:
+              - method.request.querystring.gener
+              
+  PersonTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: person
+      AttributeDefinitions:
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: dateTimeCreation
+          AttributeType: S
+        - AttributeName: cpf
+          AttributeType: S
+        - AttributeName: nickname
+          AttributeType: S            
+      KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: dateTimeCreation
+          KeyType: RANGE
+      LocalSecondaryIndexes: 
+        - IndexName: cpfIndex
+          KeySchema: 
+            - AttributeName: name
+              KeyType: HASH
+            - AttributeName: cpf
+              KeyType: RANGE
+          Projection:
+             ProjectionType: ALL 
+        - IndexName: generIndex
+          KeySchema: 
+            - AttributeName: name
+              KeyType: HASH
+            - AttributeName: gener
+              KeyType: RANGE
+          Projection:
+             ProjectionType: ALL      
+      BillingMode: PAY_PER_REQUEST              
+
+Outputs:
+
+    CreateStudyRecordFunction:
+      Description: "CreatePersonRecord Lambda Function ARN"
+      Value: !GetAtt CreatePersonRecordFunction.Arn
+      
+    GetStudyRecordsByPeriodFunction:
+      Description: "GetPersonRecordsByPeriod Lambda Function ARN"
+      Value: !GetAtt GetPersonRecordsByPeriodFunction.Arn
+      
+    GetStudyRecordsByTagFunction:
+      Description: "GetPersonRecordsByNameCpf Lambda Function ARN"
+      Value: !GetAtt GetPersonRecordsByNameCpfFunction.Arn
+      
+    GetStudyRecordsByIsConsumedFunction:
+      Description: "GetPersonRecordsByNameGener Lambda Function ARN"
+      Value: !GetAtt GetPersonRecordsByNameGenerFunction.Arn      
+     
