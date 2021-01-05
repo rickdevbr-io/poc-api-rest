@@ -7,7 +7,7 @@ Description: >
 
 Globals:
     Function:
-        Timeout: 20
+        Timeout: 100
         MemorySize: 512
         Environment:
           Variables:
@@ -16,7 +16,7 @@ Globals:
 
 Resources:
 
-  CreateStudyRecordFunction:
+  CreatePersonRecordFunction:
     Type: AWS::Serverless::Function
     Properties:
      CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
@@ -32,7 +32,7 @@ Resources:
            Path: /person
            Method: post
            
-  GetStudyRecordsByPeriodFunction:
+  GetPersonRecordsByPeriodFunction:
     Type: AWS::Serverless::Function
     Properties:
      CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
@@ -51,7 +51,7 @@ Resources:
               - method.request.querystring.starts
               - method.request.querystring.ends
               
-  GetStudyRecordsByTagFunction:
+  GetPersonRecordsByNameCpfFunction:
     Type: AWS::Serverless::Function
     Properties:
      CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
@@ -69,11 +69,11 @@ Resources:
            RequestParameters:
               - method.request.querystring.cpf
 
-  GetStudyRecordsByIsConsumedFunction:
+  GetPersonRecordsByNameGenderFunction:
     Type: AWS::Serverless::Function
     Properties:
      CodeUri: target/person-poc-1.0.0-SNAPSHOT-jar-with-dependencies.jar
-     Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameGener::handleRequest
+     Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameGender::handleRequest
      Runtime: java8
      Policies:
        - DynamoDBCrudPolicy:
@@ -82,10 +82,10 @@ Resources:
        GetStudyRecordsByIsConsumed:
          Type: Api
          Properties:
-           Path: /person/{name}/findByNameGener
+           Path: /person/{name}/findByNameGender
            Method: get
            RequestParameters:
-              - method.request.querystring.gener
+              - method.request.querystring.gender
               
   PersonTable:
     Type: AWS::DynamoDB::Table
@@ -100,6 +100,10 @@ Resources:
           AttributeType: S
         - AttributeName: nickname
           AttributeType: S            
+        - AttributeName: bloodType
+          AttributeType: S
+        - AttributeName: gender
+          AttributeType: S
       KeySchema:
         - AttributeName: name
           KeyType: HASH
@@ -114,11 +118,27 @@ Resources:
               KeyType: RANGE
           Projection:
              ProjectionType: ALL 
-        - IndexName: generIndex
+        - IndexName: genderIndex
           KeySchema: 
             - AttributeName: name
               KeyType: HASH
-            - AttributeName: gener
+            - AttributeName: gender
+              KeyType: RANGE
+          Projection:
+             ProjectionType: ALL
+        - IndexName: nicknameIndex
+          KeySchema:
+            - AttributeName: name
+              KeyType: HASH
+            - AttributeName: nickname
+              KeyType: RANGE
+          Projection:
+             ProjectionType: ALL
+        - IndexName: bloodTypeIndex
+          KeySchema:
+            - AttributeName: name
+              KeyType: HASH
+            - AttributeName: bloodType
               KeyType: RANGE
           Projection:
              ProjectionType: ALL      
@@ -126,19 +146,19 @@ Resources:
 
 Outputs:
 
-    CreateStudyRecordFunction:
+    CreatePersonRecordFunction:
       Description: "CreatePersonRecord Lambda Function ARN"
       Value: !GetAtt CreatePersonRecordFunction.Arn
-      
-    GetStudyRecordsByPeriodFunction:
+
+    GetPersonRecordsByPeriodFunction:
       Description: "GetPersonRecordsByPeriod Lambda Function ARN"
       Value: !GetAtt GetPersonRecordsByPeriodFunction.Arn
-      
-    GetStudyRecordsByTagFunction:
+
+    GetPersonRecordsByNameCpfFunction:
       Description: "GetPersonRecordsByNameCpf Lambda Function ARN"
       Value: !GetAtt GetPersonRecordsByNameCpfFunction.Arn
-      
-    GetStudyRecordsByIsConsumedFunction:
-      Description: "GetPersonRecordsByNameGener Lambda Function ARN"
-      Value: !GetAtt GetPersonRecordsByNameGenerFunction.Arn      
+
+    GetPersonRecordsByNameGenderFunction:
+      Description: "GetPersonRecordsByNameGender Lambda Function ARN"
+      Value: !GetAtt GetPersonRecordsByNameGenderFunction.Arn
      

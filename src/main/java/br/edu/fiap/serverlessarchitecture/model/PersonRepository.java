@@ -50,19 +50,19 @@ public class PersonRepository {
 		return studies;
 	}
 
-	public List<Person> findByNameGener(final String name, final String gener) {
+	public List<Person> findByNameGender(final String name, final String gender) {
 
 		final Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
 		eav.put(":val1", new AttributeValue().withS(name));
-		eav.put(":val2", new AttributeValue().withS(gener));
+		eav.put(":val2", new AttributeValue().withS(gender));
 
 		final Map<String, String> expression = new HashMap<>();
 
-		expression.put("#gener", "gener");
+		expression.put("#gender", "gender");
 
 		final DynamoDBQueryExpression<Person> queryExpression = new DynamoDBQueryExpression<Person>()
-				.withIndexName("generIndex").withConsistentRead(false)
-				.withKeyConditionExpression("name = :val1 and #gener=:val2").withExpressionAttributeValues(eav)
+				.withIndexName("genderIndex").withConsistentRead(false)
+				.withKeyConditionExpression("name = :val1 and #gender=:val2").withExpressionAttributeValues(eav)
 				.withExpressionAttributeNames(expression);
 
 		final List<Person> people = mapper.query(Person.class, queryExpression);

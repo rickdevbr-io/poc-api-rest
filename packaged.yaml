@@ -1,4 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Description: 'person-poc
 
   Rest API to manage a Data Lake of person links
@@ -6,87 +7,163 @@ Description: 'person-poc
   '
 Globals:
   Function:
+    Timeout: 100
     MemorySize: 512
-    Timeout: 20
+    Environment:
+      Variables:
+        TABLE_NAME:
+          Ref: PersonTable
+        ENDPOINT_OVERRIDE: ''
+Resources:
+  CreatePersonRecordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://aws-poc-api-rest-36scj-trabalho/6999471bc48ff59acdfe85bfacf5677c
+      Handler: br.edu.fiap.serverlessarchitecture.handler.CreatePersonRecord::handleRequest
+      Runtime: java8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: PersonTable
+      Events:
+        CreateStudyRecord:
+          Type: Api
+          Properties:
+            Path: /person
+            Method: post
+  GetPersonRecordsByPeriodFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://aws-poc-api-rest-36scj-trabalho/6999471bc48ff59acdfe85bfacf5677c
+      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByPeriod::handleRequest
+      Runtime: java8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: PersonTable
+      Events:
+        GetStudyRecordsByPeriod:
+          Type: Api
+          Properties:
+            Path: /person/{name}/findByPeriod
+            Method: get
+            RequestParameters:
+            - method.request.querystring.starts
+            - method.request.querystring.ends
+  GetPersonRecordsByNameCpfFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://aws-poc-api-rest-36scj-trabalho/6999471bc48ff59acdfe85bfacf5677c
+      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameCpf::handleRequest
+      Runtime: java8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: PersonTable
+      Events:
+        GetStudyRecordsByTag:
+          Type: Api
+          Properties:
+            Path: /person/{name}/findByNameCpf
+            Method: get
+            RequestParameters:
+            - method.request.querystring.cpf
+  GetPersonRecordsByNameGenderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://aws-poc-api-rest-36scj-trabalho/6999471bc48ff59acdfe85bfacf5677c
+      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameGender::handleRequest
+      Runtime: java8
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: PersonTable
+      Events:
+        GetStudyRecordsByIsConsumed:
+          Type: Api
+          Properties:
+            Path: /person/{name}/findByNameGender
+            Method: get
+            RequestParameters:
+            - method.request.querystring.gender
+  PersonTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: person
+      AttributeDefinitions:
+      - AttributeName: name
+        AttributeType: S
+      - AttributeName: dateTimeCreation
+        AttributeType: S
+      - AttributeName: cpf
+        AttributeType: S
+      - AttributeName: nickname
+        AttributeType: S
+      - AttributeName: bloodType
+        AttributeType: S
+      - AttributeName: gender
+        AttributeType: S
+      KeySchema:
+      - AttributeName: name
+        KeyType: HASH
+      - AttributeName: dateTimeCreation
+        KeyType: RANGE
+      LocalSecondaryIndexes:
+      - IndexName: cpfIndex
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: cpf
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      - IndexName: genderIndex
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: gender
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      - IndexName: nicknameIndex
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: nickname
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      - IndexName: bloodTypeIndex
+        KeySchema:
+        - AttributeName: name
+          KeyType: HASH
+        - AttributeName: bloodType
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
 Outputs:
-  CreateStudyRecordFunction:
+  CreatePersonRecordFunction:
     Description: CreatePersonRecord Lambda Function ARN
     Value:
       Fn::GetAtt:
       - CreatePersonRecordFunction
       - Arn
-  GetStudyRecordsByIsConsumedFunction:
-    Description: GetPersonRecordsByNameCpf Lambda Function ARN
-    Value:
-      Fn::GetAtt:
-      - GetPersonRecordsByNameCpfFunction
-      - Arn
-  GetStudyRecordsByPeriodFunction:
+  GetPersonRecordsByPeriodFunction:
     Description: GetPersonRecordsByPeriod Lambda Function ARN
     Value:
       Fn::GetAtt:
       - GetPersonRecordsByPeriodFunction
       - Arn
-  GetStudyRecordsByTagFunction:
-    Description: GetPersonRecordsByNameGener Lambda Function ARN
+  GetPersonRecordsByNameCpfFunction:
+    Description: GetPersonRecordsByNameCpf Lambda Function ARN
     Value:
       Fn::GetAtt:
-      - GetPersonRecordsByNameGenerFunction
+      - GetPersonRecordsByNameCpfFunction
       - Arn
-Resources:
-  CreateStudyRecordFunction:
-    Properties:
-      CodeUri: s3://aws-sam-fiap-deployt/896a140ec24d1c84f917b82d6bdddd3f
-      Events:
-        CreateStudyRecord:
-          Properties:
-            Method: post
-            Path: /person
-          Type: Api
-      Handler: br.edu.fiap.serverlessarchitecture.handler.CreatePersonRecord::handleRequest
-      Runtime: java8
-    Type: AWS::Serverless::Function
-  GetStudyRecordsByIsConsumedFunction:
-    Properties:
-      CodeUri: s3://aws-sam-fiap-deployt/896a140ec24d1c84f917b82d6bdddd3f
-      Events:
-        GetStudyRecordsByIsConsumed:
-          Properties:
-            Method: get
-            Path: /person/{name}/findByNameCpf
-            RequestParameters:
-            - method.request.querystring.cpf
-          Type: Api
-      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameCpf::handleRequest
-      Runtime: java8
-    Type: AWS::Serverless::Function
-  GetStudyRecordsByPeriodFunction:
-    Properties:
-      CodeUri: s3://aws-sam-fiap-deployt/896a140ec24d1c84f917b82d6bdddd3f
-      Events:
-        GetStudyRecordsByPeriod:
-          Properties:
-            Method: get
-            Path: /person/{name}/findByPeriod
-            RequestParameters:
-            - method.request.querystring.starts
-            - method.request.querystring.ends
-          Type: Api
-      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByPeriod::handleRequest
-      Runtime: java8
-    Type: AWS::Serverless::Function
-  GetStudyRecordsByTagFunction:
-    Properties:
-      CodeUri: s3://aws-sam-fiap-deployt/896a140ec24d1c84f917b82d6bdddd3f
-      Events:
-        GetStudyRecordsByTag:
-          Properties:
-            Method: get
-            Path: /person/{name}/findByNameGener
-            RequestParameters:
-            - method.request.querystring.gener
-          Type: Api
-      Handler: br.edu.fiap.serverlessarchitecture.handler.GetPersonRecordsByNameGener::handleRequest
-      Runtime: java8
-    Type: AWS::Serverless::Function
-Transform: AWS::Serverless-2016-10-31
+  GetPersonRecordsByNameGenderFunction:
+    Description: GetPersonRecordsByNameGender Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - GetPersonRecordsByNameGenderFunction
+      - Arn

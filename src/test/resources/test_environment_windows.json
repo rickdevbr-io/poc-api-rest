@@ -1,17 +1,17 @@
 {
-	"CreateStudyRecordFunction": {
+	"CreatePersonRecordFunction": {
 		"ENDPOINT_OVERRIDE": "http://docker.for.windows.localhost:8000",
 		"TABLE_NAME": "person"
 	},
-	"GetStudyRecordsByPeriodFunction": {
+	"GetPersonRecordsByNameCpfFunction": {
 		"ENDPOINT_OVERRIDE": "http://docker.for.windows.localhost:8000",
 		"TABLE_NAME": "person"
 	},
-	"GetStudyRecordsByTagFunction": {
+	"GetPersonRecordsByNameGenderFunction": {
 		"ENDPOINT_OVERRIDE": "http://docker.for.windows.localhost:8000",
 		"TABLE_NAME": "person"
 	},
-	"GetStudyRecordsByIsConsumedFunction": {
+	"GetPersonRecordsByPeriodFunction": {
 		"ENDPOINT_OVERRIDE": "http://docker.for.windows.localhost:8000",
 		"TABLE_NAME": "person"
 	}

@@ -10,7 +10,7 @@ import br.edu.fiap.serverlessarchitecture.controller.HandlerResponse;
 import br.edu.fiap.serverlessarchitecture.model.Person;
 import br.edu.fiap.serverlessarchitecture.model.PersonRepository;
 
-public class GetPersonRecordsByNameGener implements RequestHandler<HandlerRequest, HandlerResponse> {
+public class GetPersonRecordsByNameGender implements RequestHandler<HandlerRequest, HandlerResponse> {
 
 	private final PersonRepository repository = new PersonRepository();
 
@@ -18,11 +18,11 @@ public class GetPersonRecordsByNameGener implements RequestHandler<HandlerReques
 	public HandlerResponse handleRequest(HandlerRequest request, Context context) {
 
 		final String name = request.getPathParameters().get("name");
-		final String gener = request.getQueryStringParameters().get("gener");
+		final String gender = request.getQueryStringParameters().get("gender");
 
 		context.getLogger()
-				.log("Searching for registered person for " + name + " thas is gener equals " + gener);
-		final List<Person> people = this.repository.findByNameGener(name, gener);
+				.log("Searching for registered person for " + name + " that gender equals " + gender);
+		final List<Person> people = this.repository.findByNameGender(name, gender);
 
 		if (people == null || people.isEmpty()) {
 			return HandlerResponse.builder().setStatusCode(404).build();

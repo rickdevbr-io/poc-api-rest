@@ -24,17 +24,17 @@ public class Person {
 	@DynamoDBAttribute(attributeName = "bloodType")
 	private String bloodType;
 
-	@DynamoDBIndexRangeKey(attributeName = "gener", localSecondaryIndexName = "generIndex")
-	private String gener;
+	@DynamoDBIndexRangeKey(attributeName = "gender", localSecondaryIndexName = "genderIndex")
+	private String gender;
 
-	public Person(String name, String dateTimeCreation, String cpf, String nickname, String bloodType, String gener) {
+	public Person(String name, String dateTimeCreation, String cpf, String nickname, String bloodType, String gender) {
 		super();
 		this.name = name;
 		this.dateTimeCreation = dateTimeCreation;
 		this.cpf = cpf;
 		this.nickname = nickname;
 		this.bloodType = bloodType;
-		this.gener = gener;
+		this.gender = gender;
 	}
 
 	public Person() {
@@ -81,12 +81,12 @@ public class Person {
 		this.bloodType = bloodType;
 	}
 
-	public String getGener() {
-		return gener;
+	public String getGender() {
+		return gender;
 	}
 
-	public void setGener(String gener) {
-		this.gener = gener;
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 	
 }
