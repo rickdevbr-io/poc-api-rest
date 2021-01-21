@@ -1,7 +1,7 @@
 # Sobre :blue_book:
 Esta API serve para demonstrar como construir um aplicativo no AWS Serverless Envinronment usando o AWS SAM, Amazon API Gateway, AWS Lambda e Amazon DynamoDB. Ele também usa a estrutura ORM do DynamoDBMapper para mapear itens de estudo em uma tabela do DynamoDB para uma API RESTful.
 
-# Tech Stag :clipboard:
+# Tech Stack :clipboard:
 - AWS CLI already configured with at least PowerUser permission
 - [Java SE Development Kit 8 installed](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 - [Docker installed](https://www.docker.com/community-edition)
